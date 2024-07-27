@@ -52,7 +52,7 @@ function LandingPage() {
           />
         </div>
       </div>
-      <div className="relative bg-gray-900 py-6 md:py-12 border">
+      <div className="relative bg-gray-900 py-6 md:py-12">
         <h3 className="text-white text-3xl md:text-4xl font-semibold text-center mb-6 md:mb-8">Top Cryptos</h3>
         <div className="container mx-auto px-6">
           <div className="text-center mb-4 md:mb-6">
