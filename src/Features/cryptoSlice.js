@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
+const apikey = import.meta.env.VITE_CRYPTO_KEY;
+
 const initialState = {
     cryptos: [],
     showCaseCryptos: [],
@@ -16,18 +18,23 @@ export const fetchCoins = createAsyncThunk(
     async (currency, { rejectWithValue }) => {
         const options = {
             method: 'GET',
-            headers: { accept: 'application/json', 'x-cg-demo-api-key': 'CG-BDfhH3XTiJBiwg1jF3pSD8Ps' }
+            headers: {
+                accept: 'application/json',
+                'x-cg-demo-api-key': apikey // Correctly use the apikey as a string
+            }
         };
 
         try {
             const response = await fetch(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currency}`, options);
             if (!response.ok) {
                 const errorText = await response.text();
+                console.error("Fetch Coins Error:", errorText);
                 return rejectWithValue({ message: errorText });
             }
             const result = await response.json();
             return result;
         } catch (err) {
+            console.error("Fetch Coins Error:", err.message);
             return rejectWithValue({ message: err.message });
         }
     }
@@ -38,17 +45,23 @@ export const getSingleCryptoData = createAsyncThunk(
     async ({ id }, { rejectWithValue }) => {
         const options = {
             method: 'GET',
-            headers: { accept: 'application/json', 'x-cg-demo-api-key': 'CG-BDfhH3XTiJBiwg1jF3pSD8Ps' }
+            headers: {
+                accept: 'application/json',
+                'x-cg-demo-api-key': apikey // Correctly use the apikey as a string
+            }
         };
+
         try {
             const response = await fetch(`https://api.coingecko.com/api/v3/coins/${id}`, options);
             if (!response.ok) {
                 const errorText = await response.text();
+                console.error("Fetch Single Crypto Data Error:", errorText);
                 return rejectWithValue({ message: errorText });
             }
             const result = await response.json();
             return result;
         } catch (err) {
+            console.error("Fetch Single Crypto Data Error:", err.message);
             return rejectWithValue({ message: err.message });
         }
     }
@@ -57,24 +70,34 @@ export const getSingleCryptoData = createAsyncThunk(
 export const fetchHistoricalDataInfo = createAsyncThunk(
     'crypto/fetchHistoricalDataInfo',
     async ({ id, currency, interValDays }, { rejectWithValue }) => {
+        console.log("Fetching historical data with API key:", apikey);
+        console.log("Request URL:", `https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=${currency}&days=${interValDays}&interval=daily`);
+
         const options = {
             method: 'GET',
-            headers: { accept: 'application/json', 'x-cg-demo-api-key': 'CG-BDfhH3XTiJBiwg1jF3pSD8Ps' }
+            headers: {
+                accept: 'application/json',
+                'x-cg-demo-api-key': apikey // Correctly use the apikey as a string
+            }
         };
+
         try {
             const response = await fetch(`https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=${currency}&days=${interValDays}&interval=daily`, options);
+            console.log("Response Status:", response.status);
             if (!response.ok) {
                 const errorText = await response.text();
+                console.error("Fetch Historical Data Error:", errorText);
                 return rejectWithValue({ message: errorText });
             }
             const result = await response.json();
+            console.log("Fetch Historical Data Result:", result);
             return result;
         } catch (err) {
+            console.error("Fetch Historical Data Error:", err.message);
             return rejectWithValue({ message: err.message });
         }
     }
 );
-
 
 export const cryptoSlice = createSlice({
     name: 'crypto',
@@ -138,17 +161,17 @@ export const cryptoSlice = createSlice({
             })
             .addCase(getSingleCryptoData.pending, (state) => {
                 state.loading = true;
-                localStorage.setItem('singleCrypto',JSON.stringify({}))
-                state.singleCrypto = {}
+                localStorage.setItem('singleCrypto', JSON.stringify({}));
+                state.singleCrypto = {};
                 state.error = null;
             })
             .addCase(getSingleCryptoData.fulfilled, (state, action) => {
                 state.loading = false;
                 state.error = null;
-                console.log("Dekh le bhai : ",action.payload)
+                console.log("Single Crypto Data Result:", action.payload);
                 localStorage.setItem('singleCrypto', JSON.stringify(action.payload));
                 state.singleCrypto = action.payload;
-                console.log("Bhai maien to hoo geya hu : ",state.singleCrypto)
+                console.log("Single Crypto State:", state.singleCrypto);
             })
             .addCase(getSingleCryptoData.rejected, (state, action) => {
                 state.loading = false;
